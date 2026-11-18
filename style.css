@@ -66,20 +66,23 @@ html, body{
 /* ===== Egg ===== */
 .egg{
   position: relative;
-  width: min(78vw, 320px, calc(62vh * 0.8));
+  --egg-w: min(78vw, 320px, calc(62vh * 0.8));
+  width: var(--egg-w);
   aspect-ratio: 4 / 5;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 7% 9% 6%;
+  /* Padding sized against the egg's own width, not the (very wide) .room,
+     so the side padding can't collapse the egg-shell into a thin pill. */
+  padding: calc(var(--egg-w) * 0.07) calc(var(--egg-w) * 0.09) calc(var(--egg-w) * 0.06);
 }
 
 /* Desktop: scale the egg up with the viewport so the LCD is easy to read.
    Phones (<640px) keep the original sizing above; no horizontal scroll. */
 @media (min-width: 640px){
   .egg{
-    width: min(clamp(260px, 42vmin, 420px), calc(72vh * 0.8));
+    --egg-w: min(clamp(260px, 42vmin, 420px), calc(72vh * 0.8));
   }
 }
 
