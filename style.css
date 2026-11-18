@@ -4,6 +4,9 @@
    Solid colors only (no gradients on buttons), no purple, no emojis.
    ========================================================================= */
 
+/* The `hidden` attribute must win over component display rules (flex). */
+[hidden] { display: none !important; }
+
 :root{
   --room-bg: #05070a;
   --room-glow: #13110c;
