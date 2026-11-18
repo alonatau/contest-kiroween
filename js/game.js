@@ -405,7 +405,7 @@ const Game = (function () {
       "B̸A̷C̴K̴", "R̴E̴M̷E̵M̸B̴E̵R̴", "0̴x̴D̴E̵A̶D̸", "N̴O̸I̴S̶E̷"];
     let html = "";
     for (let i = 0; i < 6; i++) {
-      const top = 6 + i * 15 + (Math.random() * 6 | 0);
+      const top = 8 + i * 13 + (Math.random() * 4 | 0);
       const dir = i % 2 ? "" : " animation-delay:0.5s;";
       const txt = phrases[(Math.random() * phrases.length) | 0];
       const dur = 4 + (Math.random() * 4 | 0);

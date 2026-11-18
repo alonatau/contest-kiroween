@@ -30,6 +30,7 @@ html, body{
   color: var(--ink);
   font-family: "Courier New", ui-monospace, monospace;
   -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
   overflow: hidden;
 }
 
@@ -70,6 +71,15 @@ html, body{
   align-items: center;
   justify-content: flex-start;
   padding: 7% 9% 6%;
+}
+
+/* Desktop: scale the egg up with the viewport so the LCD is easy to read.
+   Phones (<640px) keep the original sizing above; no horizontal scroll. */
+@media (min-width: 640px){
+  .egg{
+    width: clamp(260px, 42vmin, 420px);
+    max-height: 72vh;
+  }
 }
 
 .egg-shell{
@@ -203,6 +213,9 @@ html, body{
   align-items: center;
   justify-content: center;
   touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 .btn:focus-visible{ outline: 2px solid var(--lcd-on); outline-offset: 3px; }
 .btn-cap{
@@ -292,6 +305,83 @@ html, body{
 .share:hover{ border-color: var(--lcd-on); }
 .share.copied{ color: #fff; }
 
+/* ===== Control hint row (first visit only, fades out) ===== */
+.hint{
+  display: flex;
+  gap: 14px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--ink);
+  opacity: 0.7;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.hint.fading{ opacity: 0; }
+
+/* ===== Selectable link box (clipboard blocked fallback) ===== */
+.share-box{
+  position: absolute;
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 46px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(90vw, 280px);
+  padding: 10px;
+  background: #0c0e08;
+  border: 1px solid var(--lcd-on);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  z-index: 8;
+}
+.share-box-label{
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--lcd-on);
+  text-align: center;
+}
+.share-box-row{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.share-link{
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: var(--ink);
+  background: #05070a;
+  border: 1px solid #2a2c20;
+  border-radius: 6px;
+  padding: 5px 7px;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.share-link:focus{ border-color: var(--lcd-on); }
+.share-close{
+  flex: 0 0 auto;
+  width: 24px; height: 24px;
+  border: 1px solid #2a2c20;
+  background: #05070a;
+  color: var(--ink);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.share-close:hover{ border-color: var(--lcd-on); color: var(--lcd-on); }
+
 /* ===== Haunt overlays ===== */
 .haunt-dim{
   position: fixed;
@@ -328,6 +418,7 @@ html, body{
 .room.haunting .glitch-crawl{ opacity: 1; }
 .glitch-crawl .line{
   position: absolute;
+  left: 0;
   white-space: nowrap;
   font-family: "Courier New", monospace;
   font-weight: bold;
@@ -338,8 +429,8 @@ html, body{
   animation: crawl 6s linear infinite;
 }
 @keyframes crawl{
-  from{ transform: translateX(-60%); }
-  to{ transform: translateX(60%); }
+  from{ transform: translateX(0); }
+  to{ transform: translateX(calc(100vw - 100% - 2vw)); }
 }
 
 /* ===== Read-only share card view (opened via ?ghost=...) ===== */

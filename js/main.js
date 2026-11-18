@@ -54,6 +54,37 @@
   // ---- normal game ----------------------------------------------------
   Game.init();
 
+  // ---- first-visit control hint -------------------------------------
+  const hintEl = $("hint");
+  const HINT_KEY = "ghostagotchi.hint";
+  let hintPresses = 0;
+  let hintSeen = false;
+  try { hintSeen = localStorage.getItem(HINT_KEY) === "1"; } catch (e) { hintSeen = false; }
+  if (hintSeen && hintEl) hintEl.hidden = true;
+
+  function countHintPress() {
+    if (!hintEl || hintEl.hidden) return;
+    hintPresses++;
+    if (hintPresses >= 3) fadeHint();
+  }
+  function fadeHint() {
+    if (!hintEl || hintEl.hidden) return;
+    try { localStorage.setItem(HINT_KEY, "1"); } catch (e) { /* ignore */ }
+    let done = false;
+    function finish() {
+      if (done || !hintEl) return;
+      done = true;
+      hintEl.hidden = true;
+    }
+    hintEl.addEventListener("transitionend", function ev(ev) {
+      if (ev.propertyName !== "opacity") return;
+      hintEl.removeEventListener("transitionend", ev);
+      finish();
+    });
+    setTimeout(finish, 700); // fallback if transitionend never fires
+    hintEl.classList.add("fading");
+  }
+
   // first user gesture resumes the AudioContext
   let audioUnlocked = false;
   function unlock() {
@@ -70,7 +101,7 @@
 
   function bindButton(el, fn) {
     if (!el) return;
-    el.addEventListener("click", function () { unlock(); fn(); pulse(el); });
+    el.addEventListener("click", function () { unlock(); fn(); pulse(el); countHintPress(); });
   }
   bindButton($("btnA"), Game.pressA);
   bindButton($("btnB"), Game.pressB);
@@ -78,9 +109,9 @@
 
   window.addEventListener("keydown", function (e) {
     const k = e.key.toLowerCase();
-    if (k === "a") { e.preventDefault(); unlock(); Game.pressA(); pulse($("btnA")); }
-    else if (k === "b") { e.preventDefault(); unlock(); Game.pressB(); pulse($("btnB")); }
-    else if (k === "c") { e.preventDefault(); unlock(); Game.pressC(); pulse($("btnC")); }
+    if (k === "a") { e.preventDefault(); unlock(); Game.pressA(); pulse($("btnA")); countHintPress(); }
+    else if (k === "b") { e.preventDefault(); unlock(); Game.pressB(); pulse($("btnB")); countHintPress(); }
+    else if (k === "c") { e.preventDefault(); unlock(); Game.pressC(); pulse($("btnC")); countHintPress(); }
     else if (k === "m") { e.preventDefault(); toggleMute(); }
   });
 
@@ -114,19 +145,51 @@
     shareEl.hidden = false;
     shareEl.setAttribute("href", shareURL());
   }
+
+  let copiedTimer = null;
+  let shareBoxTimer = null;
+  function showCopied() {
+    shareEl.textContent = "LINK COPIED";
+    shareEl.classList.add("copied");
+    if (copiedTimer) clearTimeout(copiedTimer);
+    copiedTimer = setTimeout(function () {
+      shareEl.textContent = "SHARE MY GHOST";
+      shareEl.classList.remove("copied");
+      copiedTimer = null;
+    }, 2000);
+  }
+  function hideShareBox() {
+    const box = $("share-box");
+    if (box) box.hidden = true;
+    if (shareBoxTimer) { clearTimeout(shareBoxTimer); shareBoxTimer = null; }
+  }
+  function showShareBox(url) {
+    const box = $("share-box");
+    if (!box) return;
+    box.hidden = false;
+    const inp = $("share-link");
+    if (inp) {
+      inp.value = url;
+      // focus + select after layout so a tap can copy on mobile
+      setTimeout(function () {
+        try { inp.focus(); inp.select(); } catch (e) { /* ignore */ }
+      }, 0);
+    }
+    if (shareBoxTimer) clearTimeout(shareBoxTimer);
+    shareBoxTimer = setTimeout(hideShareBox, 8000);
+  }
+  const shareClose = $("share-close");
+  if (shareClose) shareClose.addEventListener("click", hideShareBox);
+
   shareEl.addEventListener("click", function (e) {
     e.preventDefault();
     const url = shareURL();
     if (!url) return;
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () {
-        shareEl.textContent = "LINK COPIED";
-        shareEl.classList.add("copied");
-        setTimeout(function () {
-          shareEl.textContent = "SHARE MY GHOST";
-          shareEl.classList.remove("copied");
-        }, 1500);
-      }).catch(function () { /* clipboard blocked; URL is still the href */ });
+      navigator.clipboard.writeText(url).then(showCopied)
+        .catch(function () { showShareBox(url); });
+    } else {
+      showShareBox(url);
     }
   });
 
