@@ -8,6 +8,8 @@ It is back, and it remembers. Raise a ghost pet inside a haunted LCD egg: feed
 it fears, play with it, keep its candle lit. Neglect it and it haunts your
 screen.
 
+**Play it now:** https://ghostagotchi.vercel.app (free, no sign-up, phone or desktop)
+
 ## Run it
 
 No build step, no dependencies, no paid services — just static files.
@@ -93,9 +95,22 @@ spec, working through the staged task list in
    → lullaby → light → haunt → calm → neglect) with no runtime errors. It also
    dumped composed LCD frames as ASCII to eyeball the layout. The temporary
    test scripts were removed afterwards to keep the workspace clean.
+4. Ran a second spec-driven iteration for polish. After a play test, a new
+   spec was written in `.kiro/specs/polish/` (`requirements.md` in EARS-style
+   WHEN/THEN form, a `design.md` mapping each requirement to exact file
+   changes, and `tasks.md`). Kiro then implemented it: a first-visit control
+   hint row, a bigger egg on desktop, glitch text kept inside the viewport,
+   touch fixes (no zoom, unselectable labels), a "LINK COPIED" toast with a
+   fallback copy box, and meta tags plus a pixel-ghost favicon.
 
-No code was written by hand outside the agent; the agent authored all source
-files. The build follows the constraints: plain HTML/CSS/vanilla JS, no
+So the `.kiro` folder holds the full story of the build: steering
+(`.kiro/steering/product.md`, the product rules every change must follow) and
+two specs (`ghostagotchi` for the game, `polish` for the first-30-seconds
+pass), each with requirements, design and a ticked task list.
+
+The agent authored the source files. The one exception is a one-line CSS rule
+(`[hidden] { display: none !important; }`) added after a live test showed the
+new share box and hint row ignoring the `hidden` attribute. The build follows the constraints: plain HTML/CSS/vanilla JS, no
 framework, no build step, no paid services.
 
 ## License
